@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>RAG Chatbot</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+    }
+    .container {
+      width: 80%;
+      margin: auto;
+      margin-top: 50px;
+    }
+    #chat-box {
+      border: 1px solid #ccc;
+      height: 400px;
+      overflow-y: scroll;
+      padding: 10px;
+      margin-bottom: 10px;
+    }
+    .message {
+      margin: 5px 0;
+    }
+    .user {
+      color: blue;
+    }
+    .assistant {
+      color: green;
+    }
+    #user-input {
+      width: calc(100% - 120px);
+      padding: 10px;
+    }
+    #send-btn {
+      padding: 10px;
+    }
+    #greet-btn {
+      padding: 10px;
+      margin-top: 10px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div id="chat-box"></div>
+    <input type="text" id="user-input" placeholder="Ask a query...">
+    <button id="send-btn">Send</button>
+    <button id="greet-btn">Say Hi</button>
+  </div>
+
+  <script>
+    const chatBox = document.getElementById("chat-box");
+    const userInput = document.getElementById("user-input");
+    const sendBtn = document.getElementById("send-btn");
+    const greetBtn = document.getElementById("greet-btn");
+
+    // Append message to chatbox
+    function appendMessage(role, message) {
+      const messageDiv = document.createElement("div");
+      messageDiv.className = `message ${role}`;
+      messageDiv.textContent = `${role === "user" ? "User" : "Assistant"}: ${message}`;
+      chatBox.appendChild(messageDiv);
+      chatBox.scrollTop = chatBox.scrollHeight; // Scroll to bottom
+    }
+
+    // Send User Query to API
+    sendBtn.addEventListener("click", async () => {
+      const userText = userInput.value.trim();
+      if (!userText) return;
+
+      // Display user message
+      appendMessage("user", userText);
+
+      // Log the prompt being sent
+      console.log("Sending prompt:", userText);
+
+      try {
+        // Call backend API for query
+        const response = await fetch("http://localhost:8000/query", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ user_input: userText }),
+          mode: "cors",
+        });
+
+        const data = await response.json();
+
+        // Log the received response
+        console.log("Received response:", data);
+
+        // Display assistant message
+        if (data.response) {
+          appendMessage("assistant", data.response);
+        } else {
+          appendMessage("assistant", "No response received from the server.");
+        }
+      } catch (error) {
+        console.error("Error communicating with the server:", error);
+        appendMessage("assistant", "Error communicating with the server.");
+      }
+
+      userInput.value = ""; // Clear input
+    });
+
+    // Handle greeting response when the "Say Hi" button is clicked
+    greetBtn.addEventListener("click", async () => {
+      try {
+        // Call the /greet API to get the "hi" message
+        const response = await fetch("http://localhost:8000/greet", {
+          method: "GET",
+          mode: "cors",
+        });
+
+        const data = await response.json();
+
+        // Log the greeting response
+        console.log("Greeting response:", data);
+
+        // Display assistant greeting message
+        if (data.message) {
+          appendMessage("assistant", data.message);
+        } else {
+          appendMessage("assistant", "No greeting received from the server.");
+        }
+      } catch (error) {
+        console.error("Error communicating with the server:", error);
+        appendMessage("assistant", "Error communicating with the server.");
+      }
+    });
+  </script>
+</body>
+</html>

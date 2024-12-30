@@ -1,0 +1,23 @@
+Steps to run:
+
+1. open cmd as administrator and run this:
+    cd C:\Users\Karthik Chittoor\Documents\projects\ollama-RAG\easy-local-rag          (make sure ur path points to easy-local-rag)
+    uvicorn backend:app --host 0.0.0.0 --port 8000 --reload      
+2. run the update_vault.py in a seperate terminal:
+    python update_vault.py 
+        or 
+    python -u "c:\Users\Karthik Chittoor\Documents\projects\ollama-RAG\easy-local-rag\update_vault.py"
+2. click on 'go live' for frontend.html   (if u dont have live-server extension in vscode , install it)
+3. query about current world population only, like "What is the current world population exactly?"
+    (because i only implemented retrieving world population from "https://www.worldometers.info/world-population/").
+    -> can generalise this better, with something like https://huggingface.co/zstanjj/HTML-Pruner-Phi-3.8B.
+4. output videos : https://drive.google.com/drive/folders/1objxejDw56r0-SU8dOJCGxxan8pG2I_f?usp=sharing
+
+
+Possible Errors You Will Face: 
+1. if u get "lockdown-install.js:1 Removing unpermitted intrinsics" warning in console
+    then disable the "metamask" browser extension if u have.
+
+2. if its taking too long to recieve the user's question/ generate embeddings/retrieve relevant document/send response back to client, 
+    then try clicking CTRL+C at each step 
+    --> happening because of too many synchronous function calls one after the other (will fix later)
